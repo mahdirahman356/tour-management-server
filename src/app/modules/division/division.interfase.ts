@@ -2,6 +2,6 @@
 export interface IDivision {
     name: string,
     slug: string,
-    thumbmnail?: string,
+    thumbnail?: string,
     description?: string
 }
