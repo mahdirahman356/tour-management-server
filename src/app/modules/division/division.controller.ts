@@ -1,0 +1,60 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { NextFunction, Request, Response } from "express";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
+import httpStatus from "http-status-codes"
+import { DivisionServices } from "./division.service";
+
+
+const createDivision = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const division = await DivisionServices.createDivision(req.body)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "Division Created Successfully",
+        data: division
+    })
+})
+
+const updateDivision = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+      const UpdatedDivision = await DivisionServices.updateDivision(req.params.id, req.body)
+      sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "Division Updated Successfully",
+        data: UpdatedDivision
+    })
+})
+
+const getAllDivision = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const division = await DivisionServices.getAllDivision()
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "All Divisions Retrieved Successfully",
+        data: division
+    })
+})
+
+const deleteDivision = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+     
+     const deletedDivision = await DivisionServices.deleteDivision(req.params.id) 
+      
+      sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Division Deleted Successfully",
+        data: deletedDivision
+    })
+}) 
+
+export const DivisionController = {
+    createDivision,
+    getAllDivision,
+    updateDivision,
+    deleteDivision
+}
