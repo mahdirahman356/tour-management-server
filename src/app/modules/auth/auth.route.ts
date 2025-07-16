@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response, Router } from "express";
 import { AuthControllers } from "./auth.controller";
 import { checkAuth } from "../../middlewares/checkAuth";
@@ -14,7 +13,7 @@ route.post("/logout", AuthControllers.logout)
 route.post("/reset-password", checkAuth(...Object.values(Role)), AuthControllers.resetPassword)
 route.get("/google", async(req: Request, res: Response, next: NextFunction) => {
        const redirect = req.query.redirect || "/"
-       passport.authenticate("google", {scope: ["profile", "email"], state: redirect as string})(req, res)
+       passport.authenticate("google", {scope: ["profile", "email"], state: redirect as string})(req, res, next)
 })
 route.get("/google/callback", passport.authenticate("google", {failureRedirect: "/login"}), AuthControllers.googleCallbackController)
 
