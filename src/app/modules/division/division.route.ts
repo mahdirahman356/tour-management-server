@@ -8,7 +8,8 @@ import { createDivisionZodSchema, updateDivisionZodSchema } from "./division.val
 
 const route = Router()
 route.post("/create", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(createDivisionZodSchema), DivisionController.createDivision)
-route.get("/", checkAuth(...Object.values(Role)), DivisionController.getAllDivision)
+route.get("/", DivisionController.getAllDivision)
+route.get("/:slug", DivisionController.getSingleDivision)
 route.patch("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(updateDivisionZodSchema), DivisionController.updateDivision)
-route.delete("/:id", DivisionController.deleteDivision)
+route.delete("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), DivisionController.deleteDivision)
 export const DivisionRoute = route
