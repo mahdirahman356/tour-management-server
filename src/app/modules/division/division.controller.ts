@@ -29,16 +29,29 @@ const updateDivision = catchAsync(async (req: Request, res: Response, next: Next
 })
 
 const getAllDivision = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-
-    const division = await DivisionServices.getAllDivision()
+    const query = req.query
+    const division = await DivisionServices.getAllDivision(query as Record<string, string>)
 
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "All Divisions Retrieved Successfully",
+        data: division.data,
+        meta: division.meta
+    })
+})
+const getSingleDivision = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const division = await DivisionServices.getSingleDivision(req.params.slug)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Division Retrieved Successfully",
         data: division
     })
 })
+
 
 const deleteDivision = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
      
@@ -56,5 +69,6 @@ export const DivisionController = {
     createDivision,
     getAllDivision,
     updateDivision,
-    deleteDivision
+    deleteDivision,
+    getSingleDivision
 }

@@ -4,13 +4,14 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status-codes"
 import { TourServices } from "./tour.service";
+import { Types } from "mongoose";
 
 
 const createTourType = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-       
-       const tourType = await TourServices.createTourType(req.body)
-       
-       sendResponse(res, {
+
+    const tourType = await TourServices.createTourType(req.body)
+
+    sendResponse(res, {
         success: true,
         statusCode: httpStatus.CREATED,
         message: "Tour Type Created Successfully",
@@ -19,10 +20,23 @@ const createTourType = catchAsync(async (req: Request, res: Response, next: Next
 })
 
 const getAllTourType = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-       
-       const tourType = await TourServices.getAllTourType()
-       
-       sendResponse(res, {
+
+    const query = req.query
+    const tourType = await TourServices.getAllTourType(query as Record<string, string>)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "All Tour Type Retrieved Successfully",
+        data: tourType.data,
+        meta: tourType.meta
+    })
+})
+const getSingleTourType = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const tourType = await TourServices.getSingleTourType(req.params.id)
+
+    sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "All Tour Type Retrieved Successfully",
@@ -30,10 +44,10 @@ const getAllTourType = catchAsync(async (req: Request, res: Response, next: Next
     })
 })
 const updateTourType = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-       
-       const tourType = await TourServices.updateTourType(req.params.id, req.body)
-       
-       sendResponse(res, {
+
+    const tourType = await TourServices.updateTourType(req.params.id, req.body)
+
+    sendResponse(res, {
         success: true,
         statusCode: httpStatus.CREATED,
         message: "Tour Type Updated Successfully",
@@ -41,10 +55,10 @@ const updateTourType = catchAsync(async (req: Request, res: Response, next: Next
     })
 })
 const deleteTourType = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-       
-       const tourType = await TourServices.deleteTourType(req.params.id)
-       
-       sendResponse(res, {
+
+    const tourType = await TourServices.deleteTourType(req.params.id)
+
+    sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "Tour Type Deleted Successfully",
@@ -52,10 +66,10 @@ const deleteTourType = catchAsync(async (req: Request, res: Response, next: Next
     })
 })
 const createTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-      
-      const tour = await TourServices.createTour(req.body)
-       
-      sendResponse(res, {
+
+    const tour = await TourServices.createTour(req.body)
+
+    sendResponse(res, {
         success: true,
         statusCode: httpStatus.CREATED,
         message: "Tour Created Successfully",
@@ -63,21 +77,40 @@ const createTour = catchAsync(async (req: Request, res: Response, next: NextFunc
     })
 })
 const getAllTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-      
-      const tour = await TourServices.getAllTour()
-       
-      sendResponse(res, {
+
+
+    const query = req.query
+    const tours = await TourServices.getAllTour(query as Record<string, string>)
+
+    sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "All Tour Retrieved Successfully",
+        data: tours.data,
+        meta: tours.meta
+    })
+})
+const getSingleTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+
+    const slug = req.params.slug
+    const tour = await TourServices.getSingleTour(slug)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Tour Retrieved Successfully",
         data: tour
     })
 })
+
+
+
 const updateTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-      
-      const tour = await TourServices.updateTour(req.params.id, req.body)
-       
-      sendResponse(res, {
+
+    const tour = await TourServices.updateTour(req.params.id, req.body)
+
+    sendResponse(res, {
         success: true,
         statusCode: httpStatus.CREATED,
         message: "Tour Updated Successfully",
@@ -86,10 +119,10 @@ const updateTour = catchAsync(async (req: Request, res: Response, next: NextFunc
 })
 
 const deleteTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-       
-       const tour = await TourServices.deleteTour(req.params.id)
-       
-       sendResponse(res, {
+
+    const tour = await TourServices.deleteTour(req.params.id)
+
+    sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "Tour Type Deleted Successfully",
@@ -103,10 +136,12 @@ const deleteTour = catchAsync(async (req: Request, res: Response, next: NextFunc
 export const TourController = {
     createTourType,
     getAllTourType,
+    getSingleTourType,
     updateTourType,
     deleteTourType,
     createTour,
     getAllTour,
+    getSingleTour,
     updateTour,
-    deleteTour
+    deleteTour,
 }

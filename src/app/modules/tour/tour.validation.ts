@@ -3,18 +3,18 @@ import z from "zod";
 
 
 export const createTourTypeZodSchema = z.object({
-    name: z
-        .string({ invalid_type_error: "Tour Type name must be string" })
-        .min(2, { message: "Division name must be at least 2 characters long" })
-        .max(50, { message: "Division name cannot exceed 50 characters." }),
+  name: z
+    .string({ invalid_type_error: "Tour Type name must be string" })
+    .min(2, { message: "Division name must be at least 2 characters long" })
+    .max(50, { message: "Division name cannot exceed 50 characters." }),
 })
 
 export const updateTourTypeZodSchema = z.object({
-    name: z
-        .string({ invalid_type_error: "Tour Type name must be string" })
-        .min(2, { message: "Division name must be at least 2 characters long" })
-        .max(50, { message: "Division name cannot exceed 50 characters." })
-        .optional(),
+  name: z
+    .string({ invalid_type_error: "Tour Type name must be string" })
+    .min(2, { message: "Division name must be at least 2 characters long" })
+    .max(50, { message: "Division name cannot exceed 50 characters." })
+    .optional(),
 })
 
 
@@ -27,9 +27,6 @@ export const createTourZodSchema = z.object({
     .string({ invalid_type_error: "Title must be a string" })
     .min(3, "Title must be at least 3 characters long"),
 
-  slug: z
-    .string({ invalid_type_error: "Slug must be a string" })
-    .min(3, "Slug must be at least 3 characters long"),
 
   description: z
     .string({ invalid_type_error: "Description must be a string" })
@@ -51,6 +48,12 @@ export const createTourZodSchema = z.object({
   startDate: z
     .string()
     .refine(val => !isNaN(Date.parse(val)), { message: "Invalid start date" })
+    .optional(),
+  departureLocation: z
+    .string({ invalid_type_error: "DepartureLocation must be a number" })
+    .optional(),
+  arrivalLocation: z
+    .string({ invalid_type_error: "ArrivalLocation must be a number" })
     .optional(),
 
   endDate: z
@@ -96,10 +99,6 @@ export const updateTourZodSchema = z.object({
     .min(3, "Title must be at least 3 characters long")
     .optional(),
 
-  slug: z
-    .string({ invalid_type_error: "Slug must be a string" })
-    .min(3, "Slug must be at least 3 characters long")
-     .optional(),
 
   description: z
     .string({ invalid_type_error: "Description must be a string" })
@@ -121,6 +120,13 @@ export const updateTourZodSchema = z.object({
   startDate: z
     .string()
     .refine(val => !isNaN(Date.parse(val)), { message: "Invalid start date" })
+    .optional(),
+
+  departureLocation: z
+    .string({ invalid_type_error: "DepartureLocation must be a number" })
+    .optional(),
+  arrivalLocation: z
+    .string({ invalid_type_error: "ArrivalLocation must be a number" })
     .optional(),
 
   endDate: z

@@ -1,4 +1,6 @@
+import { tourSearchableFilds, tourTypeSearchableFilds } from "../../constants";
 import AppError from "../../errorHelpers/AppError";
+import { QueryBuilder } from "../../utils/QueryBuilder";
 import { Division } from "../division/division.model";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
@@ -9,16 +11,30 @@ const createTourType = async (payload: Partial<ITourType>) => {
      const tourType = await TourType.create(payload)
      return tourType
 }
-const getAllTourType = async () => {
-     const tourType = await TourType.find()
-     const totalTourType = await TourType.countDocuments()
+const getAllTourType = async (query: Record<string, string>) => {
+     const queryBuilder = new QueryBuilder(TourType.find(), query)
+
+     const tourType = await queryBuilder
+          .search(tourTypeSearchableFilds)
+          .filter()
+          .sort()
+          .fields()
+          .build()
+     const meta = await TourType.countDocuments()
 
      return {
           data: tourType,
           meta: {
-               total: totalTourType
+               total: meta
           }
      }
+}
+const getSingleTourType = async (tourTypeId: string) => {
+     const tourType = await TourType.findOne({ _id: tourTypeId })
+     if (!tourType) {
+          throw new AppError(httpStatus.NOT_FOUND, "Tour Type Not Found")
+     }
+     return tourType
 }
 const updateTourType = async (tourTypeId: string, payload: Partial<ITourType>) => {
      const updatedTourType = await TourType.findByIdAndUpdate(tourTypeId, payload, { new: true, runValidators: true })
@@ -30,11 +46,11 @@ const updateTourType = async (tourTypeId: string, payload: Partial<ITourType>) =
 const deleteTourType = async (tourTypeId: string) => {
 
      const isLinked = await Tour.exists({ tourType: tourTypeId })
-     
-     if(isLinked){
+
+     if (isLinked) {
           throw new AppError(httpStatus.BAD_REQUEST, "Cannot delete. Tours are linked to this tour type.")
      }
- 
+
      const tourType = await TourType.findByIdAndDelete(tourTypeId)
 
      if (!tourType) {
@@ -61,17 +77,31 @@ const createTour = async (payload: Partial<ITour>) => {
 
 }
 
-const getAllTour = async () => {
+const getAllTour = async (query: Record<string, string>) => {
 
-     const tour = await Tour.find()
-     const totalTour = await Tour.countDocuments()
+     const queryBuilder = new QueryBuilder(Tour.find(), query)
+     const tours = await queryBuilder
+          .search(tourSearchableFilds)
+          .filter()
+          .sort()
+          .fields()
+          .paginate()
+          .build()
+
+     const meta = await queryBuilder.getMeta()
 
      return {
-          data: tour,
-          meta: {
-               total: totalTour
-          }
+          data: tours,
+          meta: meta
      }
+}
+const getSingleTour = async (slug: string) => {
+
+     const tour = await Tour.findOne({ slug })
+     if (!tour) {
+          throw new AppError(httpStatus.NOT_FOUND, "Tour Not Found")
+     }
+     return tour
 }
 
 const updateTour = async (tourId: string, payload: Partial<ITour>) => {
@@ -113,10 +143,12 @@ const deleteTour = async (tourId: string) => {
 export const TourServices = {
      createTourType,
      getAllTourType,
+     getSingleTourType,
      updateTourType,
      deleteTourType,
      createTour,
      getAllTour,
+     getSingleTour,
      updateTour,
      deleteTour
 }

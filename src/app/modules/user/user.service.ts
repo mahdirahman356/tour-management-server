@@ -5,6 +5,8 @@ import bcryptjs from "bcryptjs"
 import { JwtPayload } from "jsonwebtoken"
 import httpStatus from "http-status-codes"
 import { envVars } from "../../config/env";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { userSearchableFilds } from "../../constants";
 
 const createUser = async (payload: Partial<IUser>) => {
     const { email, password, ...rest } = payload
@@ -64,19 +66,35 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
     return newUpdatedUser
 }
 
-const getAllUsers = async () => {
-    const users = await User.find({})
-    const totalUser = await User.countDocuments()
+const getAllUsers = async (query: Record<string, string>) => {
+    const queryBuilder = new QueryBuilder(User.find(), query)
+
+    const user = await queryBuilder
+        .search(userSearchableFilds)
+        .filter()
+        .sort()
+        .fields()
+        .paginate()
+        .build()
+    const meta = await queryBuilder.getMeta()
+
     return {
-        data: users,
-        meta: {
-            total: totalUser
-        }
+        data: user,
+        meta: meta
     }
+}
+const getSingleUser = async (id: string) => {
+    
+    const user = await User.findOne({_id: id})
+    if(!user){
+        throw new AppError(httpStatus.NOT_FOUND, "User Not Found")
+    }
+    return user
 }
 
 export const UserServices = {
     createUser,
     getAllUsers,
-    updateUser
+    updateUser,
+    getSingleUser
 }
