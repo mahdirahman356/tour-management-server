@@ -5,6 +5,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status-codes"
 import { TourServices } from "./tour.service";
 import { Types } from "mongoose";
+import { ITour } from "./tour.interface";
 
 
 const createTourType = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -29,7 +30,7 @@ const getAllTourType = catchAsync(async (req: Request, res: Response, next: Next
         statusCode: httpStatus.OK,
         message: "All Tour Type Retrieved Successfully",
         data: tourType.data,
-        meta: tourType.meta
+        meta: tourType.meta 
     })
 })
 const getSingleTourType = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -66,8 +67,13 @@ const deleteTourType = catchAsync(async (req: Request, res: Response, next: Next
     })
 })
 const createTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+     
+    const payload: ITour = {
+        ...req.body,
+        images: (req.files as Express.Multer.File[]).map(file => file.path)
+    }
 
-    const tour = await TourServices.createTour(req.body)
+    const tour = await TourServices.createTour(payload)
 
     sendResponse(res, {
         success: true,
@@ -107,8 +113,13 @@ const getSingleTour = catchAsync(async (req: Request, res: Response, next: NextF
 
 
 const updateTour = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-
-    const tour = await TourServices.updateTour(req.params.id, req.body)
+    
+      const payload: ITour = {
+        ...req.body,
+        images: (req.files as Express.Multer.File[]).map(file => file.path)
+    }
+ 
+    const tour = await TourServices.updateTour(req.params.id, payload)
 
     sendResponse(res, {
         success: true,

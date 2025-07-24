@@ -8,14 +8,27 @@ import { handleCastError } from "../helpers/handleCastError"
 import { handlerZodError } from "../helpers/handlerZodError"
 import { handleValidationError } from "../helpers/handleValidationError"
 import { TErrorSources } from "../interfaces/error.types"
+import { deleteImageFromCLoudinary } from "../config/cloudinary.config"
 
 
-export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-     
+export const globalErrorHandler = async (err: any, req: Request, res: Response, next: NextFunction) => {
+
     if (envVars.NODE_ENV === "development") {
         console.log(err);
     }
-    
+
+     if (req.file) {
+        await deleteImageFromCLoudinary(req.file.path)
+    }
+
+    if (req.files && Array.isArray(req.files) && req.files.length) {
+        const imageUrls = (req.files as Express.Multer.File[]).map(file => file.path)
+
+        await Promise.all(imageUrls.map(url => deleteImageFromCLoudinary(url)))
+    }
+
+
+
     let errorSources: TErrorSources[] = []
     let statusCode = 500
     let message = "Something Went Wrong"
@@ -34,13 +47,13 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
         const simplifiedError = handlerZodError(err)
         statusCode = simplifiedError.statusCode
         message = simplifiedError.message
-        errorSources = simplifiedError.errorSources as TErrorSources[] 
+        errorSources = simplifiedError.errorSources as TErrorSources[]
     }
     else if (err.name === "ValidationError") {
         const simplifiedError = handleValidationError(err)
         statusCode = simplifiedError.statusCode
         message = simplifiedError.message
-        errorSources = simplifiedError.errorSources as TErrorSources[] 
+        errorSources = simplifiedError.errorSources as TErrorSources[]
     }
     else if (err instanceof AppError) {
         statusCode = err.statusCode

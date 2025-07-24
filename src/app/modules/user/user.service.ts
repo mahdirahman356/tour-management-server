@@ -85,16 +85,26 @@ const getAllUsers = async (query: Record<string, string>) => {
 }
 const getSingleUser = async (id: string) => {
     
-    const user = await User.findOne({_id: id})
+    const user = await User.findOne({_id: id}).select("-password")
     if(!user){
         throw new AppError(httpStatus.NOT_FOUND, "User Not Found")
     }
     return user
 }
 
+const getMe = async ( userId: string) => {
+    
+    const user = await User.findById(userId).select("-password")
+   
+    return {
+        data: user
+    }
+}
+
 export const UserServices = {
     createUser,
     getAllUsers,
     updateUser,
-    getSingleUser
+    getSingleUser,
+    getMe
 }
