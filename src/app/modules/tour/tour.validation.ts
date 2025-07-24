@@ -164,4 +164,5 @@ export const updateTourZodSchema = z.object({
 
   division: objectId.optional(),
   tourType: objectId.optional(),
+  deleteImages: z.array(z.string()).optional()
 });

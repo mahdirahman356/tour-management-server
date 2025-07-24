@@ -1,3 +1,4 @@
+import { deleteImageFromCLoudinary } from "../../config/cloudinary.config";
 import { divisionSearchableFilds } from "../../constants";
 import AppError from "../../errorHelpers/AppError";
 import { QueryBuilder } from "../../utils/QueryBuilder";
@@ -20,11 +21,26 @@ const createDivision = async (payload: Partial<IDivision>) => {
 }
 
 const updateDivision = async (divisionId: string, payload: Partial<IDivision>) => {
-    const updatedDivision = await Division.findByIdAndUpdate(divisionId, payload, { new: true, runValidators: true })
-    if (!updatedDivision) {
-        throw new AppError(httpStatus.NOT_FOUND, "Division Not Found");
+
+    const existingDivision = await Division.findById(divisionId);
+    if (!existingDivision) {
+        throw new Error("Division not found.");
     }
-    return updatedDivision
+
+    const duplicateDivision = await Division.findOne({
+        name: payload.name,
+        _id: { $ne: divisionId },
+    });
+
+    if (duplicateDivision) {
+        throw new Error("A division with this name already exists.");
+    }
+
+    const updatedDivision = await Division.findByIdAndUpdate(divisionId, payload, { new: true, runValidators: true })
+    if (payload.thumbnail && existingDivision.thumbnail){
+        await deleteImageFromCLoudinary(existingDivision.thumbnail)
+    }
+        return updatedDivision
 }
 
 const getAllDivision = async (query: Record<string, string>) => {

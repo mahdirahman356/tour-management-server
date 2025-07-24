@@ -9,10 +9,9 @@ import { PAYMENT_STATUS } from "../payment/payment.interface";
 import { Tour } from "../tour/tour.model";
 import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
 import { SSLService } from "../sslCommerz/sslCommerz.service";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { getTransactionId } from "../../utils/getTransactionId";
 
-const getTransactionId = () => {
-    return `tran_${Date.now()}_${Math.floor(Math.random() * 1000)}`
-}
 
 const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 
@@ -62,19 +61,19 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
             .populate("tour", "title costFrom")
             .populate("payment")
 
-         const userAddress = (updateBooking?.user as any).address
-         const userEmail = (updateBooking?.user as any).email
-         const userPhoneNumber = (updateBooking?.user as any).phone
-         const userName = (updateBooking?.user as any).name
+        const userAddress = (updateBooking?.user as any).address
+        const userEmail = (updateBooking?.user as any).email
+        const userPhoneNumber = (updateBooking?.user as any).phone
+        const userName = (updateBooking?.user as any).name
 
-         const sslPayload: ISSLCommerz = {
-             address: userAddress,
-             email: userEmail,
-             phoneNumber: userPhoneNumber,
-             name: userName,
-             amount: amount,
-             transactionId: transactionId
-         }
+        const sslPayload: ISSLCommerz = {
+            address: userAddress,
+            email: userEmail,
+            phoneNumber: userPhoneNumber,
+            name: userName,
+            amount: amount,
+            transactionId: transactionId
+        }
 
         const sslPayment = await SSLService.sslPaymentInit(sslPayload)
 
@@ -94,27 +93,48 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     }
 };
 
-const getUserBookings = async () => {
-
-    return {}
+const getUserBookings = async (userId: string) => {
+    const myBookings = await Booking.find({ user: userId })
+    if (!myBookings || myBookings.length === 0) {
+        return {
+            message: "You have not made any bookings yet.",
+        };
+    }
+    return { myBookings }
 };
 
-const getBookingById = async () => {
-    return {}
+const getBookingById = async (bookingId: string) => {
+    const booking = await Booking.findById(bookingId)
+    if (!booking) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Booking Not Found")
+    }
+    return booking
 };
 
-const updateBookingStatus = async (
-
-) => {
-
-    return {}
+const updateBookingStatus = async (status: BOOKING_STATUS, bookingId: string) => {
+    const updatedBookingStatus = await Booking.findByIdAndUpdate(bookingId, { status: status }, {new: true, runValidators: true})
+    if (!updatedBookingStatus) {
+            throw new AppError(httpStatus.NOT_FOUND, "Booking Not Found");
+        }
+    return updatedBookingStatus
 };
 
-const getAllBookings = async () => {
+const getAllBookings = async (query: Record<string, string>) => {
 
-    
+    const queryBuilder = new QueryBuilder(Booking.find(), query)
+    const Bookings = await queryBuilder
+        .filter()
+        .sort()
+        .fields()
+        .paginate()
+        .build()
 
-    return {}
+    const meta = await queryBuilder.getMeta()
+
+    return {
+        data: Bookings,
+        meta: meta
+    }
 };
 
 export const BookingService = {
