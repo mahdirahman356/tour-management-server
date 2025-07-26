@@ -11,6 +11,7 @@ import { JwtPayload } from "jsonwebtoken"
 import { envVars } from "../../config/env"
 import jwt from "jsonwebtoken"
 import { sendEmail } from "../../utils/sendEmail"
+
 const credentialsLogin = async (payload: Partial<IUser>) => {
     const { email, password } = payload
 
@@ -33,7 +34,6 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
         user: rest
     }
 }
-
 const getNewAccessToken = async (refreshToken: string) => {
 
     const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken)
@@ -125,7 +125,6 @@ const forgotPassword = async (email: string) => {
         }
     })
 }
-
 const changePassword = async (oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
 
     const user = await User.findById(decodedToken.userId)
