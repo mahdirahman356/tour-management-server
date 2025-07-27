@@ -15,7 +15,6 @@ const createDivision = async (payload: Partial<IDivision>) => {
         throw new AppError(httpStatus.BAD_REQUEST, "A division with this name already exist")
     }
 
-
     const division = await Division.create(payload)
     return division
 }
@@ -37,6 +36,7 @@ const updateDivision = async (divisionId: string, payload: Partial<IDivision>) =
     }
 
     const updatedDivision = await Division.findByIdAndUpdate(divisionId, payload, { new: true, runValidators: true })
+    
     if (payload.thumbnail && existingDivision.thumbnail){
         await deleteImageFromCLoudinary(existingDivision.thumbnail)
     }

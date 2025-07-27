@@ -11,6 +11,8 @@ import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
 import { SSLService } from "../sslCommerz/sslCommerz.service";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { getTransactionId } from "../../utils/getTransactionId";
+import { JwtPayload } from "jsonwebtoken";
+import { Role } from "../user/user.interface";
 
 
 const createBooking = async (payload: Partial<IBooking>, userId: string) => {
@@ -103,21 +105,23 @@ const getUserBookings = async (userId: string) => {
     return { myBookings }
 };
 
-const getBookingById = async (bookingId: string) => {
+const getSingleBooking = async (bookingId: string, decodedToken: JwtPayload) => {
     const booking = await Booking.findById(bookingId)
+
     if (!booking) {
         throw new AppError(httpStatus.BAD_REQUEST, "Booking Not Found")
     }
+
+    const isOwner = booking.user.toString() === decodedToken.userId;
+    const isAdmin = decodedToken.role === Role.ADMIN || decodedToken.role === Role.SUPER_ADMIN;
+
+    if (!isOwner && !isAdmin) {
+        throw new AppError(403, "Unauthorized access to this booking");
+    }
+
     return booking
 };
 
-const updateBookingStatus = async (status: BOOKING_STATUS, bookingId: string) => {
-    const updatedBookingStatus = await Booking.findByIdAndUpdate(bookingId, { status: status }, {new: true, runValidators: true})
-    if (!updatedBookingStatus) {
-            throw new AppError(httpStatus.NOT_FOUND, "Booking Not Found");
-        }
-    return updatedBookingStatus
-};
 
 const getAllBookings = async (query: Record<string, string>) => {
 
@@ -140,7 +144,6 @@ const getAllBookings = async (query: Record<string, string>) => {
 export const BookingService = {
     createBooking,
     getUserBookings,
-    getBookingById,
-    updateBookingStatus,
-    getAllBookings,
+    getSingleBooking,
+    getAllBookings
 };

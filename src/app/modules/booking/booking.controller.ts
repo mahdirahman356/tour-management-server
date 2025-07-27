@@ -31,7 +31,8 @@ const getUserBookings = catchAsync(
 const getSingleBooking = catchAsync(
     async (req: Request, res: Response) => {
         const bookingId = req.params.bookingId
-        const booking = await BookingService.getBookingById(bookingId);
+        const decodedToken = req.user
+        const booking = await BookingService.getSingleBooking(bookingId, decodedToken as JwtPayload );
         sendResponse(res, {
             statusCode: 200,
             success: true,
@@ -55,19 +56,6 @@ const getAllBookings = catchAsync(
     }
 );
 
-const updateBookingStatus = catchAsync(
-    async (req: Request, res: Response) => {
-        const {status} = req.body  
-        const bookingId = req.params.bookingId
-        const updated = await BookingService.updateBookingStatus(status, bookingId);
-        sendResponse(res, {
-            statusCode: 200,
-            success: true,
-            message: "Booking Status Updated Successfully",
-            data: updated,
-        });
-    }
-);
 
 
 export const BookingController = {
@@ -75,5 +63,4 @@ export const BookingController = {
     getAllBookings,
     getSingleBooking,
     getUserBookings,
-    updateBookingStatus,
 }

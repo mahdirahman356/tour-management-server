@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DivisionRoute = void 0;
+const express_1 = require("express");
+const division_controller_1 = require("./division.controller");
+const checkAuth_1 = require("../../middlewares/checkAuth");
+const user_interface_1 = require("../user/user.interface");
+const validateRequest_1 = require("../../middlewares/validateRequest");
+const division_validation_1 = require("./division.validation");
+const multer_config_1 = require("../../config/multer.config");
+const route = (0, express_1.Router)();
+route.post("/create", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), multer_config_1.multerUpload.single("file"), (0, validateRequest_1.validateRequest)(division_validation_1.createDivisionZodSchema), division_controller_1.DivisionController.createDivision);
+route.get("/", division_controller_1.DivisionController.getAllDivision);
+route.get("/:slug", division_controller_1.DivisionController.getSingleDivision);
+route.patch("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), multer_config_1.multerUpload.single("file"), (0, validateRequest_1.validateRequest)(division_validation_1.updateDivisionZodSchema), division_controller_1.DivisionController.updateDivision);
+route.delete("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), division_controller_1.DivisionController.deleteDivision);
+exports.DivisionRoute = route;

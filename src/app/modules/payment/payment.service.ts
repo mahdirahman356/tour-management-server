@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { JwtPayload } from "jsonwebtoken";
 import { uploadBufferToCloudinary } from "../../config/cloudinary.config";
 import AppError from "../../errorHelpers/AppError";
 import { generatePdf, IInvoiceData } from "../../utils/invoice";
@@ -185,9 +186,15 @@ const cancelPayment = async (query: Record<string, string>) => {
 
 };
 
-const getInvoiceDownloadUrl = async (paymentId: string) => {
+const getInvoiceDownloadUrl = async (paymentId: string, decodedToken: JwtPayload) => {
     const payment = await Payment.findById(paymentId)
         .select("invoiceUrl")
+
+    const booking = await Booking.findOne({payment: paymentId})   
+
+    if(booking?.user.toString() !== decodedToken.userId){
+          throw new AppError(403, "Unauthorized access to this booking")
+    }
 
     if (!payment) {
         throw new AppError(401, "Payment not found")
